@@ -125,6 +125,8 @@ module Grape
         end
 
         def headers_contain_wrong_version?
+          ::NewRelic::Agent.add_custom_attributes({ header_values: header.values })
+
           header.values.all? do |header_value|
             version?(header_value) && !versions.include?(request_version(header_value))
           end
@@ -183,6 +185,7 @@ module Grape
 
         def request_version(media_type)
           _, subtype = Rack::Accept::Header.parse_media_type(media_type)
+          ::NewRelic::Agent.add_custom_attributes({ subtype: subtype })
           subtype.match(VENDOR_VERSION_HEADER_REGEX)[2]
         end
 
